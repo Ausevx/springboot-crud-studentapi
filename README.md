@@ -23,6 +23,15 @@ Before running the application, make sure you have the following installed:
 - **Maven** (or use IntelliJ’s built-in Maven support)
 - **Docker** (optional for running MySQL in a container)
 
+## Setup Instructions
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/your-username/springboot-crud-studentapi.git
+```
+
+
 
 ## Setup MySQL Database (Docker)
 
@@ -34,11 +43,29 @@ To set up MySQL using Docker, follow these steps:
 
 2. **Create and start the MySQL container** on port **3308** by running the following command:
 
-   ```bash
-   docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=1234 -p 3308:3306 -d mysql:latest
+ ```bash 
+    docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=1234 -p 3308:3306 -d mysql:latest
+ ```
+## **Example CURL command for CRUD operations**
+To change the method of the request (from POST to GET, PUT, DELETE, etc.), simply modify the -X flag in the CURL command:
+```
+    POST: Use -X POST for creating new records.
 
+    GET: Use -X GET for retrieving records.
 
-### 1. Clone the Repository
+    PUT: Use -X PUT for updating existing records.
 
+    DELETE: Use -X DELETE for deleting records.
+```
+Example-
+
+1.To create a new student, send a `POST` request with the student data in JSON format:
+
+  ``` 
+  curl -X POST -H "Content-Type: application/json" -d '{"name": "Student_name", "rollNumber": "Rollnum", "marks": 0-100}' http://localhost:8080/api/students
+```
+2.To delete a student by ID, send a DELETE request:
 ```bash
-git clone https://github.com/your-username/springboot-crud-studentapi.git
+curl -X DELETE http://localhost:8080/api/students/{id}
+
+```
