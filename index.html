@@ -170,6 +170,13 @@
             background-color: #a366e0;
         }
 
+        .delete-btn {
+            background-color: var(--error-color);
+        }
+
+        .delete-btn:hover {
+            background-color: #b04b5d;
+        }
 
         .student-card {
             background-color: #252525;
@@ -232,6 +239,7 @@
         <button class="menu-item active" data-section="addStudent">Add Student</button>
         <button class="menu-item" data-section="getStudent">Find Student</button>
         <button class="menu-item" data-section="allStudents">All Students</button>
+        <button class="menu-item" data-section="deleteStudent">Delete Student</button>
     </div>
 
     <div id="notificationArea"></div>
@@ -286,6 +294,28 @@
     <div id="allStudents" class="section">
         <h2>All Students</h2>
         <ul id="studentsList"></ul>
+    </div>
+
+    <!-- Delete Student Section -->
+    <div id="deleteStudent" class="section">
+        <h2>Delete Student</h2>
+        <form id="deleteStudentForm">
+            <div class="form-group">
+                <label for="deleteSearchType">Delete by:</label>
+                <select id="deleteSearchType" class="search-select">
+                    <option value="id">ID</option>
+                    <option value="rollNumber">Roll Number</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="deleteSearchValue">Search Value:</label>
+                <input type="text" id="deleteSearchValue" name="deleteSearchValue" required>
+            </div>
+
+            <button type="submit" class="delete-btn">Delete Student</button>
+        </form>
+        <div id="deleteResult" style="margin-top: 2rem;"></div>
     </div>
 </div>
 
@@ -443,6 +473,90 @@
                 console.error('Error fetching students:', error);
             });
     }
+
+    // Delete Student Form Submission
+    document.getElementById('deleteStudentForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const deleteSearchType = document.getElementById('deleteSearchType').value;
+        const deleteSearchValue = document.getElementById('deleteSearchValue').value;
+        const deleteResult = document.getElementById('deleteResult');
+
+        // Define the endpoint based on search type
+        let endpoint;
+        if (deleteSearchType === 'id') {
+            endpoint = `http://localhost:8080/api/students/${deleteSearchValue}`;
+        } else {
+            endpoint = `http://localhost:8080/api/students/roll/${deleteSearchValue}`;
+        }
+
+        // First fetch the student to confirm existence and show details
+        fetch(endpoint)
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('Student not found');
+                    }
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(student => {
+                // Display student details for confirmation
+                deleteResult.innerHTML = `
+                    <div class="student-card">
+                        <div class="student-detail student-name">${student.name}</div>
+                        <div class="student-detail">Roll Number: ${student.rollNumber}</div>
+                        <div class="student-detail">Marks: ${student.marks}</div>
+                        <div class="student-detail">ID: ${student.id}</div>
+                        <div style="margin-top: 1rem;">
+                            <button id="confirmDelete" style="background-color: var(--error-color);">Confirm Delete</button>
+                            <button id="cancelDelete" style="background-color: #444; margin-top: 0.5rem;">Cancel</button>
+                        </div>
+                    </div>
+                `;
+
+                // Setup confirm delete button
+                document.getElementById('confirmDelete').addEventListener('click', function() {
+                    // Send DELETE request
+                    fetch(`http://localhost:8080/api/students/${student.id}`, {
+                        method: 'DELETE',
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error deleting student');
+                        }
+                        deleteResult.innerHTML = '';
+                        showNotification('Student deleted successfully!', 'success');
+                        document.getElementById('deleteStudentForm').reset();
+
+                        // Refresh all students list if it's visible
+                        if (document.getElementById('allStudents').classList.contains('active')) {
+                            fetchAllStudents();
+                        }
+                    })
+                    .catch(error => {
+                        showNotification('Error deleting student. Please try again.', 'error');
+                        console.error('Delete error:', error);
+                    });
+                });
+
+                // Setup cancel button
+                document.getElementById('cancelDelete').addEventListener('click', function() {
+                    deleteResult.innerHTML = '';
+                    showNotification('Delete operation cancelled.', 'success');
+                });
+            })
+            .catch(error => {
+                deleteResult.innerHTML = '';
+                if (error.message === 'Student not found') {
+                    showNotification(`Student not found with that ${deleteSearchType === 'id' ? 'ID' : 'Roll Number'}.`, 'error');
+                } else {
+                    showNotification('Error finding student. Please try again.', 'error');
+                }
+                console.error('Error:', error);
+            });
+    });
 
     // Initial fetch of all students when page loads (but not visible until tab is selected)
     fetchAllStudents();
