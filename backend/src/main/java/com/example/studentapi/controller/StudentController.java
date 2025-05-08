@@ -11,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/students")
+// @CrossOrigin(origins = "http://host.docker.internal:8080")
 @CrossOrigin(origins = "*") // Allow requests from any origin
 public class StudentController {
 

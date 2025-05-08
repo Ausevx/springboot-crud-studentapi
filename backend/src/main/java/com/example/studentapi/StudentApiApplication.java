@@ -26,7 +26,7 @@ public class StudentApiApplication implements WebMvcConfigurer {
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://localhost:3308/student_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true");
+        dataSource.setUrl("jdbc:mysql://host.docker.internal:3308/student_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true");
         dataSource.setUsername("root");
         dataSource.setPassword("1234");
         return dataSource;
