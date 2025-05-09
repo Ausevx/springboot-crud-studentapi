@@ -10,10 +10,6 @@ This project is a full-stack student management system built with a **Spring Boo
 
 ##  Requirements
 
-### ☕ Backend
-  1.Java 17+ – required to build and run the Spring Boot application
-
-  2.Maven – for dependency management and building the backend (used in the Dockerfile)
 
 ### 🐳 Docker
 1.Docker – to containerize and run MySQL, backend, and optional frontend
@@ -41,3 +37,8 @@ This will:
 
 3.Launch the frontend  on port 80
    
+### Screenshots
+
+1. Add new student.![add_new_student.png](images/add_new_student.png)
+2. Find all students![Find_all_students.png](images/Find_all_students.png)
+3. Find student by ID/Rollno.![find_student.png](images/find_student.png)
