@@ -30,4 +30,4 @@ bin/
 .idea
 mysql_data
 
-/target/
+target/
