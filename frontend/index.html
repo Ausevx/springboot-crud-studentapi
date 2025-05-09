@@ -1,918 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Student Management System</title>
-    <style>
-      :root {
-        --bg-color: #121212;
-        --card-bg: #1e1e1e;
-        --primary-color: #bb86fc;
-        --secondary-color: #03dac6;
-        --text-color: #e0e0e0;
-        --error-color: #cf6679;
-        --success-color: #4caf50;
-        --dot-color: rgba(255, 255, 255, 0.2);
-        --dot-size: 2px;
-        --grid-spacing: 25px;
-        --line-color: rgba(187, 134, 252, 0.4);
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Management System</title>
+  <link rel="stylesheet" href="styles.css" />
+  
+</head>
+<body>
+<div class="container">
+  <h1>Student Management System</h1>
 
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: var(--bg-color);
-        color: var(--text-color);
-        line-height: 1.6;
-        position: relative;
-        overflow-x: hidden;
-      }
+  <div class="menu">
+    <button class="menu-item active" data-section="addStudent">
+      Add Student
+    </button>
+    <button class="menu-item" data-section="getStudent">
+      Find Student
+    </button>
+    <button class="menu-item" data-section="allStudents">
+      All Students
+    </button>
+    <button class="menu-item" data-section="deleteStudent">
+      Delete Student
+    </button>
+  </div>
 
-      #canvas-background {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        pointer-events: none;
-      }
+  <div id="notificationArea"></div>
 
-      .container {
-        width: 90%;
-        max-width: 800px;
-        margin: 2rem auto;
-        padding: 2rem;
-        background-color: var(--card-bg);
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-      }
-
-      h1 {
-        text-align: center;
-        color: var(--primary-color);
-        margin-bottom: 1.5rem;
-      }
-
-      h2 {
-        color: var(--secondary-color);
-        margin-top: 2rem;
-        border-bottom: 1px solid #333;
-        padding-bottom: 0.5rem;
-      }
-
-      .menu {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 2rem;
-        background-color: #252525;
-        border-radius: 5px;
-        padding: 0.5rem;
-      }
-
-      .menu-item {
-        background: none;
-        border: none;
-        padding: 0.8rem 1.5rem;
-        color: var(--text-color);
-        font-size: 1rem;
-        font-weight: 500;
-        cursor: pointer;
-        border-radius: 4px;
-        transition: all 0.3s ease;
-      }
-
-      .menu-item.active {
-        background-color: var(--primary-color);
-        color: #121212;
-      }
-
-      .menu-item:hover:not(.active) {
-        background-color: rgba(187, 134, 252, 0.1);
-      }
-
-      .section {
-        display: none;
-        animation: fadeIn 0.5s;
-      }
-
-      .section.active {
-        display: block;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-
-      form {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .form-group {
-        margin-bottom: 1.2rem;
-      }
-
-      label {
-        display: block;
-        margin-bottom: 0.5rem;
-        color: var(--text-color);
-      }
-
-      input,
-      button {
-        width: 100%;
-        padding: 0.8rem;
-        border-radius: 4px;
-        font-size: 1rem;
-      }
-
-      input {
-        background-color: #333;
-        border: 1px solid #444;
-        color: var(--text-color);
-      }
-
-      select {
-        background-color: #333;
-        border: 1px solid #444;
-        color: var(--text-color);
-        width: 100%;
-        padding: 0.8rem;
-        border-radius: 4px;
-        font-size: 1rem;
-        appearance: none;
-        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23BB86FC%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-        background-repeat: no-repeat;
-        background-position: right 0.7rem top 50%;
-        background-size: 0.65rem auto;
-      }
-
-      select:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(187, 134, 252, 0.2);
-      }
-
-      button {
-        background-color: var(--primary-color);
-        color: #121212;
-        border: none;
-        cursor: pointer;
-        font-weight: 500;
-        transition: background-color 0.3s ease;
-        margin-top: 0.5rem;
-      }
-
-      button:hover {
-        background-color: #a366e0;
-      }
-
-      .delete-btn {
-        background-color: var(--error-color);
-      }
-
-      .delete-btn:hover {
-        background-color: #b04b5d;
-      }
-
-      .student-card {
-        background-color: #252525;
-        border-left: 4px solid var(--secondary-color);
-        padding: 1rem;
-        margin-bottom: 1rem;
-        border-radius: 4px;
-      }
-
-      .student-detail {
-        margin: 0.25rem 0;
-      }
-
-      .student-name {
-        font-weight: bold;
-        color: var(--secondary-color);
-      }
-
-      .notification {
-        padding: 1rem;
-        margin: 1rem 0;
-        border-radius: 4px;
-        text-align: center;
-      }
-
-      .success {
-        background-color: rgba(76, 175, 80, 0.1);
-        color: var(--success-color);
-      }
-
-      .error {
-        background-color: rgba(207, 102, 121, 0.1);
-        color: var(--error-color);
-      }
-
-      #notificationArea {
-        height: 60px;
-      }
-
-      ul {
-        list-style: none;
-        padding: 0;
-      }
-
-      li {
-        background-color: #252525;
-        margin-bottom: 0.8rem;
-        padding: 1rem;
-        border-radius: 4px;
-        border-left: 3px solid var(--secondary-color);
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>Student Management System</h1>
-
-      <div class="menu">
-        <button class="menu-item active" data-section="addStudent">
-          Add Student
-        </button>
-        <button class="menu-item" data-section="getStudent">
-          Find Student
-        </button>
-        <button class="menu-item" data-section="allStudents">
-          All Students
-        </button>
-        <button class="menu-item" data-section="deleteStudent">
-          Delete Student
-        </button>
+  <!-- Add Student Section -->
+  <div id="addStudent" class="section active">
+    <h2>Add New Student</h2>
+    <form id="studentForm">
+      <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required />
       </div>
 
-      <div id="notificationArea"></div>
-
-      <!-- Add Student Section -->
-      <div id="addStudent" class="section active">
-        <h2>Add New Student</h2>
-        <form id="studentForm">
-          <div class="form-group">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required />
-          </div>
-
-          <div class="form-group">
-            <label for="rollNumber">Roll Number:</label>
-            <input type="text" id="rollNumber" name="rollNumber" required />
-          </div>
-
-          <div class="form-group">
-            <label for="marks">Marks:</label>
-            <input
-              type="number"
-              id="marks"
-              name="marks"
-              min="0"
-              max="100"
-              required
-            />
-          </div>
-
-          <button type="submit">Submit</button>
-        </form>
+      <div class="form-group">
+        <label for="rollNumber">Roll Number:</label>
+        <input type="text" id="rollNumber" name="rollNumber" required />
       </div>
 
-      <!-- Get Student by ID Section -->
-      <div id="getStudent" class="section">
-        <h2>Find Student</h2>
-        <form id="findStudentForm">
-          <div class="form-group">
-            <label for="searchType">Search by:</label>
-            <select id="searchType" class="search-select">
-              <option value="id">ID</option>
-              <option value="rollNumber">Roll Number</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="searchValue">Search Value:</label>
-            <input type="text" id="searchValue" name="searchValue" required />
-          </div>
-
-          <button type="submit">Find</button>
-        </form>
-
-        <div id="studentDetails" style="margin-top: 2rem"></div>
+      <div class="form-group">
+        <label for="marks">Marks:</label>
+        <input
+                type="number"
+                id="marks"
+                name="marks"
+                min="0"
+                max="100"
+                required
+        />
       </div>
 
-      <!-- All Students Section -->
-      <div id="allStudents" class="section">
-        <h2>All Students</h2>
-        <ul id="studentsList"></ul>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+  <!-- Get Student by ID Section -->
+  <div id="getStudent" class="section">
+    <h2>Find Student</h2>
+    <form id="findStudentForm">
+      <div class="form-group">
+        <label for="searchType">Search by:</label>
+        <select id="searchType" class="search-select">
+          <option value="id">ID</option>
+          <option value="rollNumber">Roll Number</option>
+        </select>
       </div>
 
-      <!-- Delete Student Section -->
-      <div id="deleteStudent" class="section">
-        <h2>Delete Student</h2>
-        <form id="deleteStudentForm">
-          <div class="form-group">
-            <label for="deleteSearchType">Delete by:</label>
-            <select id="deleteSearchType" class="search-select">
-              <option value="id">ID</option>
-              <option value="rollNumber">Roll Number</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="deleteSearchValue">Search Value:</label>
-            <input
-              type="text"
-              id="deleteSearchValue"
-              name="deleteSearchValue"
-              required
-            />
-          </div>
-
-          <button type="submit" class="delete-btn">Delete Student</button>
-        </form>
-        <div id="deleteResult" style="margin-top: 2rem"></div>
+      <div class="form-group">
+        <label for="searchValue">Search Value:</label>
+        <input type="text" id="searchValue" name="searchValue" required />
       </div>
-    </div>
 
-    <script>
-      // Menu functionality
-      document.querySelectorAll(".menu-item").forEach((item) => {
-        item.addEventListener("click", function () {
-          // Remove active class from all menu items and sections
-          document
-            .querySelectorAll(".menu-item")
-            .forEach((i) => i.classList.remove("active"));
-          document
-            .querySelectorAll(".section")
-            .forEach((s) => s.classList.remove("active"));
+      <button type="submit">Find</button>
+    </form>
 
-          // Add active class to clicked menu item and corresponding section
-          this.classList.add("active");
-          const sectionId = this.getAttribute("data-section");
-          document.getElementById(sectionId).classList.add("active");
+    <div id="studentDetails" style="margin-top: 2rem"></div>
+  </div>
 
-          // If "All Students" section is activated, fetch students
-          if (sectionId === "allStudents") {
-            fetchAllStudents();
-          }
-        });
-      });
+  <!-- All Students Section -->
+  <div id="allStudents" class="section">
+    <h2>All Students</h2>
+    <ul id="studentsList"></ul>
+  </div>
 
-      // Notifications
-      function showNotification(message, type) {
-        const notificationArea = document.getElementById("notificationArea");
-        notificationArea.innerHTML = `<div class="notification ${type}">${message}</div>`;
+  <!-- Delete Student Section -->
+  <div id="deleteStudent" class="section">
+    <h2>Delete Student</h2>
+    <form id="deleteStudentForm">
+      <div class="form-group">
+        <label for="deleteSearchType">Delete by:</label>
+        <select id="deleteSearchType" class="search-select">
+          <option value="id">ID</option>
+          <option value="rollNumber">Roll Number</option>
+        </select>
+      </div>
 
-        // Clear notification after 3 seconds
-        setTimeout(() => {
-          notificationArea.innerHTML = "";
-        }, 3000);
-      }
+      <div class="form-group">
+        <label for="deleteSearchValue">Search Value:</label>
+        <input
+                type="text"
+                id="deleteSearchValue"
+                name="deleteSearchValue"
+                required
+        />
+      </div>
 
-      // Add Student Form Submission
-      document
-        .getElementById("studentForm")
-        .addEventListener("submit", function (event) {
-          event.preventDefault();
+      <button type="submit" class="delete-btn">Delete Student</button>
+    </form>
+    <div id="deleteResult" style="margin-top: 2rem"></div>
+  </div>
+</div>
 
-          // Get form data
-          const name = document.getElementById("name").value;
-          const rollNumber = document.getElementById("rollNumber").value;
-          const marks = document.getElementById("marks").value;
+<script src="script.js"></script>
 
-          // Prepare data for POST request
-          const data = {
-            name: name,
-            rollNumber: rollNumber,
-            marks: parseInt(marks),
-          };
-
-          // Send POST request to Spring Boot API
-          fetch("http://localhost:8080/api/students", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-          })
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error("Network response was not ok");
-              }
-              return response.json();
-            })
-            .then((data) => {
-              showNotification("Student added successfully!", "success");
-              document.getElementById("studentForm").reset();
-            })
-            .catch((error) => {
-              showNotification(
-                "Error adding student. Please try again.",
-                "error"
-              );
-              console.error("Error:", error);
-            });
-        });
-
-      // Find Student by ID or Roll Number Form Submission
-      document
-        .getElementById("findStudentForm")
-        .addEventListener("submit", function (event) {
-          event.preventDefault();
-
-          const searchType = document.getElementById("searchType").value;
-          const searchValue = document.getElementById("searchValue").value;
-          const studentDetails = document.getElementById("studentDetails");
-
-          let endpoint;
-          if (searchType === "id") {
-            endpoint = `http://localhost:8080/api/students/${searchValue}`;
-          } else {
-            endpoint = `http://localhost:8080/api/students/roll/${searchValue}`;
-          }
-
-          fetch(endpoint)
-            .then((response) => {
-              if (!response.ok) {
-                if (response.status === 404) {
-                  throw new Error("Student not found");
-                }
-                throw new Error("Network response was not ok");
-              }
-              return response.json();
-            })
-            .then((student) => {
-              studentDetails.innerHTML = `
-                    <div class="student-card">
-                        <div class="student-detail student-name">${student.name}</div>
-                        <div class="student-detail">Roll Number: ${student.rollNumber}</div>
-                        <div class="student-detail">Marks: ${student.marks}</div>
-                        <div class="student-detail">ID: ${student.id}</div>
-                    </div>
-                `;
-              showNotification("Student found!", "success");
-            })
-            .catch((error) => {
-              studentDetails.innerHTML = "";
-              if (error.message === "Student not found") {
-                showNotification(
-                  `Student not found with that ${
-                    searchType === "id" ? "ID" : "Roll Number"
-                  }.`,
-                  "error"
-                );
-              } else {
-                showNotification(
-                  "Error finding student. Please try again.",
-                  "error"
-                );
-              }
-              console.error("Error:", error);
-            });
-        });
-
-      // Fetch all students from the API and display them
-      function fetchAllStudents() {
-        const studentsList = document.getElementById("studentsList");
-        studentsList.innerHTML =
-          '<div style="text-align:center;padding:1rem;">Loading students...</div>';
-
-        fetch("http://localhost:8080/api/students")
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Network response was not ok");
-            }
-            return response.json();
-          })
-          .then((data) => {
-            studentsList.innerHTML = ""; // Clear the list
-
-            if (data.length === 0) {
-              studentsList.innerHTML =
-                '<div style="text-align:center;padding:1rem;">No students found.</div>';
-              return;
-            }
-
-            data.forEach((student) => {
-              const li = document.createElement("li");
-              li.innerHTML = `
-                        <div class="student-detail student-name">${
-                          student.name
-                        }</div>
-                        <div class="student-detail">Roll Number: ${
-                          student.rollNumber
-                        }</div>
-                        <div class="student-detail">Marks: ${
-                          student.marks
-                        }</div>
-                        <div class="student-detail">ID: ${
-                          student.id || "N/A"
-                        }</div>
-                    `;
-              studentsList.appendChild(li);
-            });
-          })
-          .catch((error) => {
-            studentsList.innerHTML =
-              '<div style="text-align:center;padding:1rem;color:var(--error-color);">Error loading students.</div>';
-            console.error("Error fetching students:", error);
-          });
-      }
-
-      // Delete Student Form Submission
-      document
-        .getElementById("deleteStudentForm")
-        .addEventListener("submit", function (event) {
-          event.preventDefault();
-
-          const deleteSearchType =
-            document.getElementById("deleteSearchType").value;
-          const deleteSearchValue =
-            document.getElementById("deleteSearchValue").value;
-          const deleteResult = document.getElementById("deleteResult");
-
-          // Define the endpoint based on search type
-          let endpoint;
-          if (deleteSearchType === "id") {
-            endpoint = `http://localhost:8080/api/students/${deleteSearchValue}`;
-          } else {
-            endpoint = `http://localhost:8080/api/students/roll/${deleteSearchValue}`;
-          }
-
-          // First fetch the student to confirm existence and show details
-          fetch(endpoint)
-            .then((response) => {
-              if (!response.ok) {
-                if (response.status === 404) {
-                  throw new Error("Student not found");
-                }
-                throw new Error("Network response was not ok");
-              }
-              return response.json();
-            })
-            .then((student) => {
-              // Display student details for confirmation
-              deleteResult.innerHTML = `
-                    <div class="student-card">
-                        <div class="student-detail student-name">${student.name}</div>
-                        <div class="student-detail">Roll Number: ${student.rollNumber}</div>
-                        <div class="student-detail">Marks: ${student.marks}</div>
-                        <div class="student-detail">ID: ${student.id}</div>
-                        <div style="margin-top: 1rem;">
-                            <button id="confirmDelete" style="background-color: var(--error-color);">Confirm Delete</button>
-                            <button id="cancelDelete" style="background-color: #444; margin-top: 0.5rem;">Cancel</button>
-                        </div>
-                    </div>
-                `;
-
-              // Setup confirm delete button
-              document
-                .getElementById("confirmDelete")
-                .addEventListener("click", function () {
-                  // Send DELETE request
-                  fetch(`http://localhost:8080/api/students/${student.id}`, {
-                    method: "DELETE",
-                  })
-                    .then((response) => {
-                      if (!response.ok) {
-                        throw new Error("Error deleting student");
-                      }
-                      deleteResult.innerHTML = "";
-                      showNotification(
-                        "Student deleted successfully!",
-                        "success"
-                      );
-                      document.getElementById("deleteStudentForm").reset();
-
-                      // Refresh all students list if it's visible
-                      if (
-                        document
-                          .getElementById("allStudents")
-                          .classList.contains("active")
-                      ) {
-                        fetchAllStudents();
-                      }
-                    })
-                    .catch((error) => {
-                      showNotification(
-                        "Error deleting student. Please try again.",
-                        "error"
-                      );
-                      console.error("Delete error:", error);
-                    });
-                });
-
-              // Setup cancel button
-              document
-                .getElementById("cancelDelete")
-                .addEventListener("click", function () {
-                  deleteResult.innerHTML = "";
-                  showNotification("Delete operation cancelled.", "success");
-                });
-            })
-            .catch((error) => {
-              deleteResult.innerHTML = "";
-              if (error.message === "Student not found") {
-                showNotification(
-                  `Student not found with that ${
-                    deleteSearchType === "id" ? "ID" : "Roll Number"
-                  }.`,
-                  "error"
-                );
-              } else {
-                showNotification(
-                  "Error finding student. Please try again.",
-                  "error"
-                );
-              }
-              console.error("Error:", error);
-            });
-        });
-
-      // Initial fetch of all students when page loads (but not visible until tab is selected)
-      fetchAllStudents();
-
-      // Interactive background with connecting dots
-      const canvas = document.createElement("canvas");
-      canvas.id = "canvas-background";
-      document.body.appendChild(canvas);
-
-      const ctx = canvas.getContext("2d");
-      let dots = [];
-      let mouse = {
-        x: undefined,
-        y: undefined,
-        lastX: undefined,
-        lastY: undefined,
-        timestamp: 0,
-      };
-      let animationId;
-
-      // Configuration
-      const config = {
-        dotSize: 3, // Dot size
-        dotColor: "rgba(255, 255, 255, 0.2)", // Dot color (more subtle)
-        gridSpacing: 50, // Increased space between dots for less density
-        connectDistance: 120, // Reduced max distance for connections
-        lineColor: "rgba(187, 134, 252, 0.6)", // Reduced brightness connecting lines
-        lineWidth: 1.2, // Thinner lines
-        activeDotSize: 4, // Size of dots when active
-        mouseInteractionRadius: 180, // Mouse influence radius
-        maxRandomConnections: 2, // Reduced number of random connections
-        mouseMovementDebounce: 20, // Debounce mouse movement (ms)
-        connectionFadeSpeed: 0.1, // Connection fade speed (lower = smoother)
-        stableConnections: true, // Enable stable connections
-      };
-
-      // Set canvas dimensions
-      function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        initDots();
-      }
-
-      // Initialize dots based on grid spacing
-      function initDots() {
-        dots = [];
-        const cols = Math.ceil(canvas.width / config.gridSpacing) + 1;
-        const rows = Math.ceil(canvas.height / config.gridSpacing) + 1;
-
-        for (let i = 0; i < cols; i++) {
-          for (let j = 0; j < rows; j++) {
-            // Add a little randomness to positions to make it look more natural
-            const xOffset = Math.random() * 10 - 5;
-            const yOffset = Math.random() * 10 - 5;
-
-            dots.push({
-              x: i * config.gridSpacing + xOffset,
-              y: j * config.gridSpacing + yOffset,
-              size: config.dotSize,
-              baseSize: config.dotSize,
-              connections: [],
-              connectionOpacity: 0,
-            });
-          }
-        }
-      }
-
-      // Calculate distance between two points
-      function getDistance(x1, y1, x2, y2) {
-        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-      }
-
-      // Smooth mouse movement to reduce flickering
-      function smoothMouseMovement(x, y) {
-        const now = Date.now();
-
-        // Debounce rapid movements
-        if (now - mouse.timestamp < config.mouseMovementDebounce) {
-          return;
-        }
-
-        // Store last position
-        mouse.lastX = mouse.x;
-        mouse.lastY = mouse.y;
-
-        // Update current position
-        mouse.x = x;
-        mouse.y = y;
-        mouse.timestamp = now;
-      }
-
-      // Draw dots and connecting lines
-      function drawDots() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Reset connections if mouse is not present
-        if (!mouse.x || !mouse.y) {
-          for (let i = 0; i < dots.length; i++) {
-            dots[i].connections = [];
-            dots[i].connectionOpacity = 0;
-          }
-        }
-
-        // Draw dots and connections
-        for (let i = 0; i < dots.length; i++) {
-          const dot = dots[i];
-
-          // Reset dot size
-          dot.size = dot.baseSize;
-
-          // Draw dot
-          ctx.beginPath();
-          ctx.fillStyle = config.dotColor;
-          ctx.arc(dot.x, dot.y, dot.size, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Connect to mouse if close enough
-          if (mouse.x && mouse.y) {
-            const distToMouse = getDistance(dot.x, dot.y, mouse.x, mouse.y);
-
-            if (distToMouse < config.mouseInteractionRadius) {
-              // Enlarge dot based on proximity to mouse (subtle effect)
-              const sizeFactor =
-                1 - distToMouse / config.mouseInteractionRadius;
-              dot.size =
-                dot.baseSize +
-                (config.activeDotSize - dot.baseSize) * sizeFactor * 0.7;
-
-              // Draw line to mouse with smooth fade in/out
-              const lineOpacity = Math.max(
-                0,
-                0.8 - distToMouse / config.mouseInteractionRadius
-              );
-
-              if (lineOpacity > 0.05) {
-                // Only draw if visible enough
-                ctx.beginPath();
-                ctx.strokeStyle = `rgba(187, 134, 252, ${lineOpacity * 0.6})`;
-                ctx.lineWidth =
-                  config.lineWidth *
-                  (1 - (distToMouse / config.mouseInteractionRadius) * 0.8);
-                ctx.moveTo(dot.x, dot.y);
-                ctx.lineTo(mouse.x, mouse.y);
-                ctx.stroke();
-              }
-
-              // Find or update connections
-              if (config.stableConnections) {
-                if (dot.connections.length === 0) {
-                  // Initialize connections - find nearby dots
-                  const nearbyDots = [];
-
-                  for (let j = 0; j < dots.length; j++) {
-                    if (i !== j) {
-                      const dot2 = dots[j];
-                      const dist = getDistance(dot.x, dot.y, dot2.x, dot2.y);
-
-                      if (dist < config.connectDistance) {
-                        const dot2ToMouse = getDistance(
-                          dot2.x,
-                          dot2.y,
-                          mouse.x,
-                          mouse.y
-                        );
-                        if (dot2ToMouse < config.mouseInteractionRadius) {
-                          nearbyDots.push({ dot: dot2, index: j, dist: dist });
-                        }
-                      }
-                    }
-                  }
-
-                  // Sort by distance
-                  nearbyDots.sort((a, b) => a.dist - b.dist);
-
-                  // Choose the closest few
-                  const connectionCount = Math.min(
-                    config.maxRandomConnections,
-                    nearbyDots.length
-                  );
-                  for (let c = 0; c < connectionCount; c++) {
-                    if (c < nearbyDots.length) {
-                      dot.connections.push({
-                        index: nearbyDots[c].index,
-                        opacity: 0,
-                      });
-                    }
-                  }
-                }
-
-                // Draw stable connections with smooth transitions
-                for (let c = 0; c < dot.connections.length; c++) {
-                  const connection = dot.connections[c];
-                  const connectedDot = dots[connection.index];
-
-                  // Check if connected dot is still in range
-                  const dotToDot = getDistance(
-                    dot.x,
-                    dot.y,
-                    connectedDot.x,
-                    connectedDot.y
-                  );
-                  const dotToMouse = getDistance(
-                    connectedDot.x,
-                    connectedDot.y,
-                    mouse.x,
-                    mouse.y
-                  );
-
-                  // Fade connections in/out based on mouse proximity
-                  if (
-                    dotToDot < config.connectDistance &&
-                    dotToMouse < config.mouseInteractionRadius
-                  ) {
-                    // Fade in
-                    connection.opacity += config.connectionFadeSpeed;
-                    if (connection.opacity > 1) connection.opacity = 1;
-                  } else {
-                    // Fade out
-                    connection.opacity -= config.connectionFadeSpeed;
-                    if (connection.opacity < 0) connection.opacity = 0;
-                  }
-
-                  // Draw connection if visible
-                  if (connection.opacity > 0) {
-                    const baseOpacity =
-                      0.3 + 0.3 * (1 - dotToDot / config.connectDistance);
-                    const finalOpacity = baseOpacity * connection.opacity;
-
-                    ctx.beginPath();
-                    ctx.strokeStyle = `rgba(187, 134, 252, ${finalOpacity})`;
-                    ctx.lineWidth = config.lineWidth * 0.8 * connection.opacity;
-                    ctx.moveTo(dot.x, dot.y);
-                    ctx.lineTo(connectedDot.x, connectedDot.y);
-                    ctx.stroke();
-                  }
-                }
-
-                // Remove connections that have faded out
-                dot.connections = dot.connections.filter(
-                  (conn) => conn.opacity > 0
-                );
-              }
-            }
-          }
-        }
-
-        animationId = requestAnimationFrame(drawDots);
-      }
-
-      // Mouse movement event with debounce
-      document.addEventListener("mousemove", (event) => {
-        smoothMouseMovement(event.clientX, event.clientY);
-      });
-
-      // Touch support for mobile devices with debounce
-      document.addEventListener("touchmove", (event) => {
-        if (event.touches.length > 0) {
-          smoothMouseMovement(
-            event.touches[0].clientX,
-            event.touches[0].clientY
-          );
-          event.preventDefault(); // Prevent scrolling while touching
-        }
-      });
-
-      document.addEventListener("touchend", () => {
-        mouse.x = undefined;
-        mouse.y = undefined;
-      });
-
-      // Handle window resize
-      window.addEventListener("resize", resizeCanvas);
-
-      // Initialize and start animation
-      resizeCanvas();
-      drawDots();
-    </script>
-  </body>
+</body>
 </html>
